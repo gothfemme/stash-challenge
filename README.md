@@ -1,68 +1,68 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a takehome challenge for Stash! Done in React ⚛️. Bootstrapped with Create React App.
 
 ## Available Scripts
 
 In the project directory, you can run:
+
+### `yarn install`
+
+It'll install packages! I love technology.
 
 ### `yarn start`
 
 Runs the app in the development mode.<br />
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
-
 ### `yarn test`
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Runs test suite. This project uses `jest` and `react-testing-library`. They're neat.
 
-### `yarn build`
+## Challenge Guidelines
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Stash has decided to pivot from investing to the GIF-search-engine space,
+and needs your help to build out a web-app prototype for their new product.
+Create a GIF search engine using Giphy's public API .
+The app should have the following functionality:
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+1. The app serves a page consisting of a simple form with a text field and a
+   button.
+2. When the user enters text, use Javascript to request some GIFs from the
+   Giphy API
+3. When the API responds, populate the page with GIFs.
+4. A user can click a GIF to add it to their "favorites".
+5. A user can view another page which displays their favorite GIFs.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Redux
 
-### `yarn eject`
+This project uses a modular approach to Redux, with each module categorized by data within `src/redux/modules`. Each module contains its types, action creators, selectors, thunks, and reducer. Module action types are namespaced with the module name, for example `@@module/ACTION_TYPE`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+This project uses `redux-thunk` for asynchronous data fetching, mostly for its quick setup time. In a larger project, we might use something more structured and opinionated (for example, `redux-saga`).
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+For async, we are following the convention of dispatching an action at the start of a request, and then on the success or failure of said request.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+This allows us to mark data as 'loading' in state when the request begins, and we can then flip it when it resolves (or signify that it has an error, or that it has loaded at least once in the case of requests that might be called more than once like paginated reqs).
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+See the example thunk below
 
-## Learn More
+```
+export const getSomething = () => async (dispatch) => {
+  // SOMETHING_REQUEST
+  dispatch(somethingRequest());
+  try {
+    const res = await fetch(...);
+    const { data } = await res.json();
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+    // SOMETHING_REQUEST_SUCCESS
+    dispatch(somethingRequestSuccess(data));
+  } catch {
+    // SOMETHING_REQUEST_FAILURE
+    dispatch(somethingRequestFailure());
+  }
+};
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Component File Structure
 
-### Code Splitting
+Components rendered by a `Route` are in `src/pages`, these in turn render components from `src/components`. If a component is child another component, its folder will be within the folder of its parent. In the case that it becomes 'shared' by having another parent that renders it, it moves up to the nearest shared level of the parents.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+Component files are named what they're named, not `index.js`, for easy grepping. IDEs are good enough at autocompleting imports.
